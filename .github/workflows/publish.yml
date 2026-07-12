@@ -1,0 +1,46 @@
+name: Download and publish IP databases
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 1 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      IP2LOCATION_TOKEN: ${{ secrets.IP2LOCATION_TOKEN }}
+      OUTPUT_DIR: dist
+      DOWNLOAD_DIR: downloads
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: bash start.sh
+      - name: Publish daily release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="ip-data-$(date -u +%F)"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" dist/* --clobber
+            gh release edit "$tag" --notes-file RELEASE_NOTES.md
+          else
+            gh release create "$tag" dist/* --title "$tag" --notes-file RELEASE_NOTES.md --latest=false
+          fi
+      - name: Delete releases older than seven days
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cutoff="$(date -u -d '7 days ago' +%s)"
+          gh release list --limit 1000 --json tagName,createdAt --jq '.[] | select(.tagName | startswith("ip-data-")) | select((.createdAt | fromdateiso8601) < '"$cutoff"') | .tagName' |
+          while read -r tag; do
+            [ -z "$tag" ] || gh release delete "$tag" --yes --cleanup-tag
+          done

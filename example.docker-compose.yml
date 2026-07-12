@@ -6,5 +6,6 @@ services:
     build:
       context: .
     volumes:
-      - ./temp:/app/temp
-    command: bash start
+      - ./dist:/app/dist
+    environment:
+      IP2LOCATION_TOKEN: ${IP2LOCATION_TOKEN:?set IP2LOCATION_TOKEN in your environment}
