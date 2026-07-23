@@ -36,7 +36,7 @@ For every downloaded CSV, the project also creates `cidr_<source>.csv.gz`. It re
 GitHub Actions
 -------------
 
-`.github/workflows/publish.yml` runs every day at 01:30 UTC and can also be started manually. It creates a dated `ip-data-YYYY-MM-DD` release, updates a release when manually re-run on the same day, and deletes only its own releases older than seven days.
+`.github/workflows/publish.yml` runs at 05:17 UTC on the third day of each month and can also be started manually. It creates a dated `ip-data-YYYY-MM-DD` release and updates a release when manually re-run on the same day. Published releases are retained.
 
 Before enabling it, configure repository settings:
 

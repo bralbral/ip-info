@@ -13,6 +13,6 @@ This release is automatically produced by GitHub Actions from the current [IP2Lo
 | `*.MMDB` | MaxMind DB files for DB11 and ASN. Binary format; not gzip-compressed. |
 | `*.BIN` | Binary databases for DB11, PX11, and ASN. Not gzip-compressed. |
 
-The update runs daily. Releases older than seven days are deleted automatically.
+The update runs monthly. Published releases are retained.
 
 Use of this data is governed by the IP2Location LITE terms, including their attribution requirement.

@@ -3,7 +3,7 @@ name: Download and publish IP databases
 on:
   workflow_dispatch:
   schedule:
-    - cron: "30 4 * * *"
+    - cron: "17 5 3 * *"
 
 permissions:
   contents: write
@@ -22,7 +22,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: bash start.sh
-      - name: Publish daily release
+      - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -33,12 +33,3 @@ jobs:
           else
             gh release create "$tag" dist/* --title "$tag" --notes-file RELEASE_NOTES.md --latest=false
           fi
-      - name: Delete releases older than seven days
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          cutoff="$(date -u -d '7 days ago' +%s)"
-          gh release list --limit 1000 --json tagName,createdAt --jq '.[] | select(.tagName | startswith("ip-data-")) | select((.createdAt | fromdateiso8601) < '"$cutoff"') | .tagName' |
-          while read -r tag; do
-            [ -z "$tag" ] || gh release delete "$tag" --yes --cleanup-tag
-          done
